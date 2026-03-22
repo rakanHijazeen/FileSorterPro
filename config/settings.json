@@ -1,0 +1,20 @@
+{
+  "watch_directory": "C:/Users/user/OneDrive/Desktop/testFolder",
+  "categories": {
+    "Documents": [
+      ".pdf",
+      ".doc",
+      ".docx",
+      ".txt",
+      ".csv",
+      ".xls",
+      ".xlsx",
+      ".log"
+    ],
+    "Images": [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"],
+    "Videos": [".mp4", ".mkv", ".avi", ".mov", ".flv"],
+    "Audio": [".mp3", ".wav", ".aac", ".flac"],
+    "Archives": [".zip", ".rar", ".7z", ".tar", ".gz"],
+    "Programs": [".exe", ".msi", ".bat", ".sh", ".py", ".jar"]
+  }
+}

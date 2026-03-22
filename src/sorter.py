@@ -1,48 +1,53 @@
-import os,shutil
+import os
+import shutil
+import json
 from pathlib import Path
-path = Path(input("Enter the folder path: ").strip())
 
-file=os.listdir(path)
+def load_settings():
+    """Load user settings from the JSON config file."""
+    with open('config/settings.json', 'r') as f:
+        return json.load(f)
 
-if not path.exists():
-    print("Error: The specified path does not exist.")
-    exit()
-
-EXTENSIONS = {
-    "Documents": [".pdf", ".doc", ".docx", ".txt", ".csv", ".xls", ".xlsx", ".log"],
-    "Images": [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"],
-    "Videos": [".mp4", ".mkv", ".avi", ".mov", ".flv"],
-    "Audio": [".mp3", ".wav", ".aac", ".flac"],
-    "Archives": [".zip", ".rar", ".7z", ".tar", ".gz"],
-    "Programs": [".exe", ".msi", ".bat", ".sh", ".py", ".jar"]
-}
-
-for FILE in file:
-    file_path = os.path.join(path, FILE)
+def sort_files(target_path):
+    """The core logic to sort files in a given directory."""
+    path = Path(target_path)
     
-   
-    if os.path.isdir(file_path):#ignore and skip folders
-        continue
+    if not path.exists():
+        print(f"Error: {path} does not exist.")
+        return
 
+    # Load categories from our new JSON file
+    settings = load_settings()
+    extensions_map = settings["categories"]
 
-    name, ext = os.path.splitext(FILE)#split file name into "name" & ".extension"
-    ext = ext.lower()
+    files = os.listdir(path)
 
-    #matching 
-    moved = False
-    for folder_name, extensions in EXTENSIONS.items():
-        if ext in extensions:
-            folder_path = os.path.join(path, folder_name)
-            os.makedirs(folder_path, exist_ok=True)
-            shutil.move(file_path, os.path.join(folder_path, FILE))
-            print(f"Moved: {FILE} → {folder_name}")
-            moved = True
-            break
+    for file_name in files:
+        file_path = path / file_name # Using pathlib for cleaner path joining
+        
+        if file_path.is_dir():
+            continue
 
-    # If not found, move to "Others"
-    if not moved:
-        misc_folder = os.path.join(path, "Others")
-        os.makedirs(misc_folder, exist_ok=True)
-        shutil.move(file_path, os.path.join(misc_folder, FILE))
-        print(f"Moved: {FILE} → Others")
+        ext = file_path.suffix.lower()
+        moved = False
+
+        for folder_name, extensions in extensions_map.items():
+            if ext in extensions:
+                dest_folder = path / folder_name
+                dest_folder.mkdir(exist_ok=True)
+                shutil.move(str(file_path), str(dest_folder / file_name))
+                print(f"Moved: {file_name} → {folder_name}")
+                moved = True
+                break
+
+        if not moved:
+            others_folder = path / "Others"
+            others_folder.mkdir(exist_ok=True)
+            shutil.move(str(file_path), str(others_folder / file_name))
+            print(f"Moved: {file_name} → Others")
+
+if __name__ == "__main__":
+    # For testing, we can still run it manually
+    user_input = input("Enter folder path to sort: ").strip()
+    sort_files(user_input)
 
