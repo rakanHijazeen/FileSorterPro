@@ -63,12 +63,33 @@ class SortFlowGUI(ctk.CTk):
         self.log_textbox.grid(row=3, column=1, columnspan=2, padx=20, pady=(10, 20), sticky="nsew")
         self.log_textbox.insert("0.0", "System Ready...\n")
 
+        config_path = Path(__file__).parent.parent / "config" / "settings.json"
+        if config_path.exists():
+            with open(config_path, "r") as f:
+                data = json.load(f)
+                # This automatically puts the saved path into the box on startup!
+                self.path_entry.insert(0, data.get("watch_directory", ""))
     def browse_folder(self):
         folder = filedialog.askdirectory()
         if folder:
+            # 1. Update the UI
             self.path_entry.delete(0, "end")
             self.path_entry.insert(0, folder)
-
+            
+            # 2. Update the config/settings.json file
+            try:
+                config_path = Path(__file__).parent.parent / "config" / "settings.json"
+                with open(config_path, "r") as f:
+                    data = json.load(f)
+                
+                data["watch_directory"] = folder  # Change the old path to the new one
+                
+                with open(config_path, "w") as f:
+                    json.dump(data, f, indent=4)
+                    
+                self.log_textbox.insert("end", f"⚙️ Configuration updated to: {folder}\n")
+            except Exception as e:
+                self.log_textbox.insert("end", f"⚠️ Failed to save settings: {e}\n")
     def manual_sort(self):
         target = self.path_entry.get()
         if target:
@@ -105,7 +126,7 @@ class SortFlowGUI(ctk.CTk):
                 time.sleep(1)
         except Exception as e:
             self.observer.stop()
-
+    
 if __name__ == "__main__":
     app = SortFlowGUI()
     app.mainloop()
