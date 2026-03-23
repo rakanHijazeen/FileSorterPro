@@ -46,7 +46,7 @@ source .venv/Scripts/activate # On Windows
 bash:
 pip install -r requirements.txt
 
-(Note: If requirements.txt isn't present, run pip install customtkinter watchdog)
+(Note: If requirements.txt isn't present, run pip install customtkinter watchdog darkdetect packaging)
 
 4. Launch the Application:
 
